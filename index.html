@@ -3,170 +3,332 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Power Clash</title>
+    <title>Longueur d'Onde Custom</title>
     <style>
-        :root {
-            --primary: #e74c3c;
-            --dark: #1a1a1a;
-            --white: #ffffff;
-        }
-
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: var(--dark);
-            color: var(--white);
-            text-align: center;
             margin: 0;
+            padding: 0;
+            background-color: #2b5c74;
+            font-family: Arial, sans-serif;
+            color: white;
             display: flex;
             flex-direction: column;
             align-items: center;
-            min-height: 100vh;
-        }
-
-        h1 { margin-top: 20px; color: var(--primary); text-transform: uppercase; letter-spacing: 2px; }
-        p { opacity: 0.8; margin-bottom: 30px; }
-
-        .container {
-            display: flex;
             justify-content: center;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        #lobby, #game {
+            display: flex;
+            flex-direction: column;
             align-items: center;
-            gap: 20px;
-            flex-wrap: wrap;
-            width: 90%;
-            max-width: 1000px;
-        }
-
-        .card {
-            background: #2a2a2a;
-            border: 3px solid transparent;
-            border-radius: 15px;
-            padding: 15px;
-            width: 280px;
-            cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        }
-
-        .card:hover {
-            border-color: var(--primary);
-            transform: scale(1.05);
-            box-shadow: 0 10px 30px rgba(231, 76, 60, 0.4);
-        }
-
-        .card img {
             width: 100%;
-            height: 380px;
-            object-fit: cover;
-            border-radius: 10px;
-            background: #333;
+            max-width: 600px;
+            padding: 20px;
+            box-sizing: border-box;
         }
 
-        .vs {
-            font-size: 3.5rem;
-            font-weight: 900;
-            color: var(--primary);
-            font-style: italic;
-            text-shadow: 4px 4px 0px rgba(0,0,0,0.5);
-        }
+        .hidden { display: none !important; }
 
-        .name {
-            font-size: 1.6rem;
-            margin-top: 15px;
-            font-weight: bold;
-        }
+        h1 { margin-bottom: 30px; text-shadow: 2px 2px 4px rgba(0,0,0,0.4); }
 
-        #next-btn {
-            margin: 40px 0;
-            padding: 15px 40px;
-            background: var(--primary);
+        button {
+            background-color: #232742;
             color: white;
-            border: none;
-            border-radius: 50px;
-            cursor: pointer;
+            border: 2px solid #fff;
+            padding: 15px 30px;
+            font-size: 18px;
             font-weight: bold;
-            font-size: 1.1rem;
-            display: none;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin: 10px;
+        }
+        button:hover { background-color: #ff4747; transform: scale(1.05); }
+
+        /* Style de la Roue inspiré de tes images */
+        .wheel-container {
+            position: relative;
+            width: 450px;
+            height: 450px;
+            background-color: #111625;
+            border-radius: 50%;
+            border: 15px solid #fff;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .wheel-bg {
+            position: absolute;
+            width: 90%;
+            height: 90%;
+            background-color: #7da5b2;
+            border-radius: 50%;
+            clip-path: polygon(0 0, 100% 0, 100% 60%, 0 60%);
+        }
+
+        /* Jauge de score cachable */
+        .target-zone {
+            position: absolute;
+            width: 90%;
+            height: 90%;
+            border-radius: 50%;
+            transform: rotate(0deg);
+            transition: transform 0.5s ease;
+            pointer-events: none;
+        }
+
+        .zone {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            clip-path: polygon(50% 50%, 41% 0, 50% 0); /* Étroit pour faire des tranches */
+        }
+        .z2_1 { background: rgba(143, 172, 149, 0.8); transform: rotate(-16deg); }
+        .z3_1 { background: rgba(135, 155, 163, 0.8); transform: rotate(-8deg); }
+        .z4   { background: rgba(220, 118, 102, 0.9); transform: rotate(0deg); }
+        .z3_2 { background: rgba(135, 155, 163, 0.8); transform: rotate(8deg); }
+        .z2_2 { background: rgba(143, 172, 149, 0.8); transform: rotate(16deg); }
+
+        .cache-bas {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            height: 50%;
+            background-color: #111625;
+            z-index: 4;
+        }
+
+        /* L'aiguille rouge */
+        .needle {
+            position: absolute;
+            width: 6px;
+            height: 40%;
+            background-color: #d13434;
+            bottom: 50%;
+            left: calc(50% - 3px);
+            transform-origin: bottom center;
+            transform: rotate(-45deg);
+            z-index: 5;
+            border-radius: 3px;
+        }
+
+        .center-button {
+            position: absolute;
+            width: 90px;
+            height: 90px;
+            background-color: #d13434;
+            border-radius: 50%;
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            border: 4px solid #fff;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            cursor: pointer;
+        }
+
+        /* Mots Card */
+        .card-mots {
+            background-color: #e2dcd3;
+            color: #111625;
+            display: flex;
+            width: 320px;
+            border-radius: 10px;
+            margin-top: -40px;
+            z-index: 6;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            overflow: hidden;
+            font-weight: bold;
+            text-align: center;
+        }
+        .card-left { flex: 1; background-color: #8bb3c2; padding: 15px; }
+        .card-right { flex: 1; padding: 15px; }
+
+        /* Sliders / Contrôles */
+        .controls {
+            margin-top: 20px;
+            display: flex;
+            gap: 15px;
+            z-index: 10;
+        }
+        .instructions {
+            font-style: italic;
+            margin: 15px;
+            text-align: center;
+            color: #ffd670;
         }
     </style>
 </head>
 <body>
 
-    <h1>Power Clash</h1>
-    <p>Qui est le plus puissant ?</p>
+    <!-- ÉCRAN 1 : LOBBY -->
+    <div id="lobby">
+        <h1>LONGUEUR D'ONDE</h1>
+        <button id="btn-host">Créer une partie (HOST)</button>
+        <p style="margin: 20px 0;">OU</p>
+        <p id="wait-msg">Si tu as reçu un lien de ton pote, clique simplement dessus pour rejoindre !</p>
+    </div>
 
-    <div class="container">
-        <div class="card" id="char1" onclick="vote(0)">
-            <img src="" alt="" id="img1">
-            <div class="name" id="name1"></div>
+    <!-- ÉCRAN 2 : LE JEU -->
+    <div id="game" class="hidden">
+        <h2 id="role-title">Rôle : ...</h2>
+        <p class="instructions" id="info-text">En attente...</p>
+
+        <div class="wheel-container">
+            <div class="wheel-bg"></div>
+            
+            <!-- Cible contenant les zones de points -->
+            <div id="target" class="target-zone">
+                <div class="zone z2_1"></div>
+                <div class="zone z3_1"></div>
+                <div class="zone z4"></div>
+                <div class="zone z3_2"></div>
+                <div class="zone z2_2"></div>
+            </div>
+
+            <div class="cache-bas"></div>
+            <div id="needle" class="needle"></div>
+            <div id="btn-guess" class="center-button">GUESS</div>
         </div>
 
-        <div class="vs">VS</div>
+        <!-- Les Cartes de mots comme sur l'image -->
+        <div class="card-mots">
+            <div class="card-left" id="word-left">Mauvais Bonbon</div>
+            <div class="card-right" id="word-right">Bon Bonbon</div>
+        </div>
 
-        <div class="card" id="char2" onclick="vote(1)">
-            <img src="" alt="" id="img2">
-            <div class="name" id="name2"></div>
+        <div class="controls">
+            <button id="btn-action">Action</button>
+            <button id="btn-angle-left">◀ Gauche</button>
+            <button id="btn-angle-right">Droite ▶</button>
         </div>
     </div>
 
-    <button id="next-btn" onclick="loadDuel()">DUEL SUIVANT ⚔️</button>
-
     <script>
-        const characters = [
-            { name: "Goku", img: "https://via.placeholder.com/300x400?text=Goku" },
-            { name: "Saitama", img: "https://via.placeholder.com/300x400?text=Saitama" },
-            { name: "Luffy", img: "https://via.placeholder.com/300x400?text=Luffy" },
-            { name: "Sung Jin-Woo", img: "https://via.placeholder.com/300x400?text=Sung+Jin+Woo" },
-            { name: "Ichigo Kurosaki", img: "https://via.placeholder.com/300x400?text=Ichigo" },
-            { name: "Gon Freecss", img: "https://via.placeholder.com/300x400?text=Gon" },
-            { name: "Tanjiro Kamado", img: "https://via.placeholder.com/300x400?text=Tanjiro" },
-            { name: "Jotaro Kujo", img: "https://via.placeholder.com/300x400?text=Jotaro" },
-            { name: "Aizen Sosuke", img: "https://via.placeholder.com/300x400?text=Aizen" },
-            { name: "Sasuke Uchiha", img: "https://via.placeholder.com/300x400?text=Sasuke" },
-            { name: "Jin Mori", img: "https://via.placeholder.com/300x400?text=Jin+Mori" },
-            { name: "Anti-Spiral", img: "https://via.placeholder.com/300x400?text=Anti-Spiral" },
-            { name: "Gojo Satoru", img: "https://via.placeholder.com/300x400?text=Gojo" },
-            { name: "Makima", img: "https://via.placeholder.com/300x400?text=Makima" },
-            { name: "Deku", img: "https://via.placeholder.com/300x400?text=Deku" },
-            { name: "Archie Sonic", img: "https://via.placeholder.com/300x400?text=Archie+Sonic" },
-            /* Nouveaux Ajouts */
-            { name: "Guts", img: "https://via.placeholder.com/300x400?text=Guts" },
-            { name: "Rimuru Tempest", img: "https://via.placeholder.com/300x400?text=Rimuru" },
-            { name: "Anos Voldigoad", img: "https://via.placeholder.com/300x400?text=Anos" },
-            { name: "Yoriichi", img: "https://via.placeholder.com/300x400?text=Yoriichi" },
-            { name: "Gilgamesh", img: "https://via.placeholder.com/300x400?text=Gilgamesh" },
-            { name: "Whitebeard", img: "https://via.placeholder.com/300x400?text=Whitebeard" },
-            { name: "Madara Uchiha", img: "https://via.placeholder.com/300x400?text=Madara" },
-            { name: "Esdeath", img: "https://via.placeholder.com/300x400?text=Esdeath" },
-            { name: "Mob (Shigeo)", img: "https://via.placeholder.com/300x400?text=Mob" },
-            { name: "Baki Hanma", img: "https://via.placeholder.com/300x400?text=Baki" }
+        // Banques de mots drôles / Pokémon
+        const motsDispos = [
+            ["Mauvais bonbon", "Bon bonbon"],
+            ["Pokémon éclaté", "Pokémon Masterclass"],
+            ["Chaud", "Froid"],
+            ["Minuscule", "Gigantesque"],
+            ["Inutile", "Indispensable"],
+            ["Pas stylé", "Ultra stylé"],
+            ["Gentil", "Méchant"]
         ];
 
-        function loadDuel() {
-            document.getElementById('next-btn').style.display = 'none';
-            let i1 = Math.floor(Math.random() * characters.length);
-            let i2 = Math.floor(Math.random() * characters.length);
-            while (i1 === i2) { i2 = Math.floor(Math.random() * characters.length); }
+        let role = "guess"; // "host" ou "guess"
+        let targetAngle = 0;
+        let currentNeedleAngle = 0;
+        let isRevealed = false;
 
-            document.getElementById('name1').innerText = characters[i1].name;
-            document.getElementById('img1').src = characters[i1].img;
-            document.getElementById('name2').innerText = characters[i2].name;
-            document.getElementById('img2').src = characters[i2].img;
+        const lobby = document.getElementById('lobby');
+        const game = document.getElementById('game');
+        const roleTitle = document.getElementById('role-title');
+        const infoText = document.getElementById('info-text');
+        const targetVisual = document.getElementById('target');
+        const needleVisual = document.getElementById('needle');
+        const btnAction = document.getElementById('btn-action');
+        const wordLeft = document.getElementById('word-left');
+        const wordRight = document.getElementById('word-right');
 
-            document.querySelectorAll('.card').forEach(c => {
-                c.style.opacity = "1";
-                c.style.pointerEvents = "auto";
-                c.style.borderColor = "transparent";
-            });
+        // Analyse de l'URL pour savoir si on est invité
+        const urlParams = new URLSearchParams(window.location.search);
+        if(urlParams.has('target')) {
+            // On est le devineur (GUESSR)
+            role = "guess";
+            targetAngle = parseInt(urlParams.get('target'));
+            let pairIndex = parseInt(urlParams.get('words')) || 0;
+            wordLeft.innerText = motsDispos[pairIndex][0];
+            wordRight.innerText = motsDispos[pairIndex][1];
+            
+            setupGame();
         }
 
-        function vote(winnerIndex) {
-            const cards = [document.getElementById('char1'), document.getElementById('char2')];
-            cards[winnerIndex].style.borderColor = "#2ecc71";
-            cards[1 - winnerIndex].style.opacity = "0.3";
-            cards.forEach(c => c.style.pointerEvents = "none");
-            document.getElementById('next-btn').style.display = 'block';
+        // Clic sur HOST
+        document.getElementById('btn-host').addEventListener('click', () => {
+            role = "host";
+            genererNouvelleCible();
+            setupGame();
+        });
+
+        function genererNouvelleCible() {
+            // Choisit un angle aléatoire entre -70 et +70 degrés pour le haut du cadran
+            targetAngle = Math.floor(Math.random() * 140) - 70;
+            let pairIndex = Math.floor(Math.random() * motsDispos.length);
+            wordLeft.innerText = motsDispos[pairIndex][0];
+            wordRight.innerText = motsDispos[pairIndex][1];
+
+            // Met à jour l'URL pour pouvoir la donner au pote
+            const originalUrl = window.location.href.split('?')[0];
+            const shareUrl = `${originalUrl}?target=${targetAngle}&words=${pairIndex}`;
+            
+            // On change le bouton action pour copier le lien
+            btnAction.innerText = "Copier le lien pour l'ami";
+            btnAction.onclick = () => {
+                navigator.clipboard.writeText(shareUrl);
+                alert("Lien copié ! Envoie-le à ton pote.");
+            };
         }
 
-        window.onload = loadDuel;
+        function setupGame() {
+            lobby.classList.add('hidden');
+            game.classList.remove('hidden');
+            isRevealed = false;
+
+            if(role === "host") {
+                roleTitle.innerText = "Rôle : Donneur d'indice (Host)";
+                infoText.innerText = "Tu vois la zone colorée. Donne ton indice au micro, puis dis à ton pote de jouer !";
+                targetVisual.style.opacity = "1"; // L'host voit la cible
+                targetVisual.style.transform = `rotate(${targetAngle}deg)`;
+                btnAction.classList.remove('hidden');
+                document.getElementById('btn-guess').style.display = "none"; // Ne peut pas valider
+            } else {
+                roleTitle.innerText = "Rôle : Devineur";
+                infoText.innerText = "Ton pote t'a donné un indice. Bouge l'aiguille et clique sur GUESS au centre !";
+                targetVisual.style.opacity = "0"; // Caché pour le devineur !
+                targetVisual.style.transform = `rotate(${targetAngle}deg)`;
+                btnAction.classList.add('hidden'); // Pas besoin de copier le lien
+                document.getElementById('btn-guess').style.display = "flex";
+            }
+        }
+
+        // Faire pivoter l'aiguille
+        document.getElementById('btn-angle-left').addEventListener('click', () => {
+            if(isRevealed) return;
+            currentNeedleAngle -= 5;
+            if(currentNeedleAngle < -85) currentNeedleAngle = -85;
+            needleVisual.style.transform = `rotate(${currentNeedleAngle}deg)`;
+        });
+
+        document.getElementById('btn-angle-right').addEventListener('click', () => {
+            if(isRevealed) return;
+            currentNeedleAngle += 5;
+            if(currentNeedleAngle > 85) currentNeedleAngle = 85;
+            needleVisual.style.transform = `rotate(${currentNeedleAngle}deg)`;
+        });
+
+        // REVEAL (Clic sur le bouton rouge GUESS)
+        document.getElementById('btn-guess').addEventListener('click', () => {
+            if(role !== "guess" || isRevealed) return;
+            
+            isRevealed = true;
+            targetVisual.style.opacity = "1"; // On affiche la cible !
+            
+            // Calcul du score rapide
+            let diff = Math.abs(currentNeedleAngle - targetAngle);
+            let score = 0;
+            if(diff <= 4) score = 4;
+            else if(diff <= 12) score = 3;
+            else if(diff <= 20) score = 2;
+
+            infoText.innerHTML = `案 **RÉVÉLATION !** Ton aiguille est à ${currentNeedleAngle}°, la cible était à ${targetAngle}°.<br>Tu marques **${score} points** ! Relancez une partie sur Discord !`;
+        });
     </script>
 </body>
 </html>
